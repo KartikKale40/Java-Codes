@@ -1,189 +1,136 @@
 package DAY_3.MiniProject;
-class Product {
-    protected int id;
-    protected String name;
-    protected double price;
 
-    public Product(int id, String name, double price) {
+import java.util.Scanner;
+
+abstract class Product {
+    int id;
+    String name;
+    double price;
+
+    Product(int id, String name, double price) {
         this.id = id;
         this.name = name;
         this.price = price;
     }
 
-    
-    public double calculateDiscount() {
-        return 0; 
-    }
+    abstract double getDiscount();
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Product)) return false;
-        Product other = (Product) obj;
-        return this.id == other.id;
+    double finalPrice() {
+        return price - (price * getDiscount() / 100);
     }
 
     @Override
     public String toString() {
-        return "ID: " + id + ", Name: " + name + ", Price: $" + price;
+        return "ID : " + id +
+               "\nName : " + name +
+               "\nPrice : ₹" + price +
+               "\nDiscount : " + getDiscount() + "%" +
+               "\nFinal Price : ₹" + finalPrice();
     }
 }
 
 class Electronics extends Product {
-    private double warrantyPeriod;
 
-    public Electronics(int id, String name, double price, double warranty) {
+    Electronics(int id, String name, double price) {
         super(id, name, price);
-        this.warrantyPeriod = warranty;
     }
 
     @Override
-    public double calculateDiscount() {
-        return 10; 
+    double getDiscount() {
+        return 10;
     }
 }
 
 class Clothing extends Product {
-    private String size;
 
-    public Clothing(int id, String name, double price, String clothingSize) {
+    Clothing(int id, String name, double price) {
         super(id, name, price);
-        this.size = clothingSize;
     }
 
     @Override
-    public double calculateDiscount() {
-        return 5; 
+    double getDiscount() {
+        return 20;
     }
 }
-
 
 class Grocery extends Product {
-    private int quantity;
 
-    public Grocery(int id, String name, double price, int quantity) {
+    Grocery(int id, String name, double price) {
         super(id, name, price);
-        this.quantity = quantity;
     }
 
     @Override
-    public double calculateDiscount() {
-        return 2; 
+    double getDiscount() {
+        return 5;
     }
 }
-
-
-class ShoppingCart {
-    private Product[] items;
-
-    public ShoppingCart(int size) {
-        this.items = new Product[size];
-    }
-
-    public void addProduct(Product product, int index) {
-        if(index >= 0 && index < items.length) {
-            items[index] = product;
-        }
-    }
-
-    
-    public Product[] searchByName(String name) {
-        int count = 0;
-
-        
-        for(Product p : items) {
-            if(p != null && p.name.toLowerCase().contains(name.toLowerCase())) {
-                count++;
-            }
-        }
-
-        Product[] result = new Product[count];
-        int i = 0;
-
-       
-        for(Product p : items) {
-            if(p != null && p.name.toLowerCase().contains(name.toLowerCase())) {
-                result[i++] = p;
-            }
-        }
-
-        return result;
-    }
-
-    
-    public Product findById(int id) {
-        for(Product product : items) {
-            if(product != null && product.id == id) {
-                return product;
-            }
-        }
-        return null;  
-    }
-
-    public void displayProducts() {
-        int count = 0;
-        System.out.println("Your Shopping Cart:");
-        for(Product product : items) {
-            if(product != null) {
-                double finalPrice = calculateFinalPrice(product);
-                System.out.println((count+1) + ". " + product +
-                                ", Discount: " + product.calculateDiscount() +
-                                "% - Final Price: $" + String.format("%.2f", finalPrice));
-                count++;
-            }
-        }
-
-        if(count == 0) {
-            System.out.println("Your cart is empty!");
-        }
-    }
-
-    private double calculateFinalPrice(Product product) {
-        double discount = product.calculateDiscount();
-        return (product.price * (1 - discount/100));
-    }
-}
-
 
 public class OnlineShoppingApp {
+
     public static void main(String[] args) {
-        
-        ShoppingCart cart = new ShoppingCart(5);
 
-        
-        cart.addProduct(new Electronics(1, "Smartphone", 699.99, 2), 0);
-        cart.addProduct(new Clothing(2, "T-Shirt", 19.99, "M"), 1);
-        cart.addProduct(new Grocery(3, "Milk", 2.50, 1), 2);
+        Scanner sc = new Scanner(System.in);
 
-        
-        System.out.println("=== Current Products ===");
-        cart.displayProducts();
+        Product products[] = new Product[3];
 
-        
-        System.out.println("\nSearch results for 'phone':");
-        Product[] searchResults = cart.searchByName("phone");
+        products[0] = new Electronics(101, "Laptop", 60000);
+        products[1] = new Clothing(102, "T-Shirt", 1000);
+        products[2] = new Grocery(103, "Rice Bag", 2000);
 
-        if(searchResults != null && searchResults.length > 0) {
-            for(Product product : searchResults) {
-                System.out.println(product);
+        while (true) {
+
+            System.out.println("\n===== ONLINE SHOPPING SYSTEM =====");
+            System.out.println("1. Display Products");
+            System.out.println("2. Search Product by ID");
+            System.out.println("3. Exit");
+            System.out.print("Enter Choice : ");
+            int choice = sc.nextInt();
+
+            switch (choice) {
+
+                case 1:
+
+                    System.out.println("\nAvailable Products\n");
+
+                    for (Product p : products) {
+                        System.out.println("-------------------------");
+                        System.out.println(p);
+                    }
+
+                    break;
+
+                case 2:
+
+                    System.out.print("Enter Product ID : ");
+                    int searchId = sc.nextInt();
+
+                    boolean found = false;
+
+                    for (Product p : products) {
+
+                        if (p.id == searchId) {
+                            System.out.println("\nProduct Found\n");
+                            System.out.println(p);
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        System.out.println("Product Not Found.");
+                    }
+
+                    break;
+
+                case 3:
+
+                    System.out.println("Thank You...");
+                    System.exit(0);
+
+                default:
+
+                    System.out.println("Invalid Choice!");
             }
-        } else {
-            System.out.println("No products found matching the search.");
         }
-
-        
-        Product foundProduct = cart.findById(2); 
-        if(foundProduct != null) {
-            System.out.println("\nFound product with ID " + foundProduct.id);
-            System.out.println("Name: " + foundProduct.name);
-            System.out.println("Price after discount: $" +
-                             String.format("%.2f", calculateFinalPrice(foundProduct)));
-        } else {
-            System.out.println("Product not found!");
-        }
-    }
-
-    
-    private static double calculateFinalPrice(Product product) {
-        return (product.price * (1 - product.calculateDiscount()/100));
     }
 }
